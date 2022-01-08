@@ -27,7 +27,7 @@ type API struct {
 }
 
 func NewAPI(ctx context.Context, customHttpClient *http.Client) *API {
-	_api := &utils.API{}
+	_api := &API{}
 	if customHttpClient == nil {
 		_api.HttpClient = http.DefaultClient
 	} else {
