@@ -61,6 +61,7 @@ type GeneralResult struct {
 	Data                json.RawMessage `json:"data,omitempty"`
 }
 
+//cStruct MUST BE A Pointer!!!!
 func ProcessResult(JSON []byte, cStruct interface{}) *JSONError {
 	var ret GeneralResult
 	if err := json.Unmarshal(JSON, &ret); err != nil {

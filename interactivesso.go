@@ -17,9 +17,9 @@ func NewAPI(ctx context.Context, customHttpClient *http.Client) *api.API {
 	}
 
 	if ctx == nil {
-		_api.ctx = context.Background()
+		_api.Ctx = context.Background()
 	} else {
-		_api.ctx = ctx
+		_api.Ctx = ctx
 	}
 
 	_api.Timeout = 30 * time.Second
