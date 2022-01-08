@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
@@ -24,6 +23,8 @@ type API struct {
 	HttpClient *http.Client
 	Timeout    time.Duration
 	APIServer  string
+	o          *oauth.OAuth
+	u          *user.User
 }
 
 //Usage
@@ -80,7 +81,7 @@ func (a *API) GetURLWithParams(URL string, params map[string]string) ([]byte, st
 
 //access the url using POST method
 // Return Value : Response Body, HTTP Code, Error
-func (a *API) PostURL(URL string, Value url.Values) ([]byte, string, error) {
+func (a *API) PostURL(URL string, Value map[string]string) ([]byte, string, error) {
 	payload, _ := json.Marshal(Value)
 	req, err := http.NewRequest("POST", a.GetFormatURL(URL), bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
@@ -99,17 +100,29 @@ func (a *API) PostURL(URL string, Value url.Values) ([]byte, string, error) {
 	return body, res.Status, nil
 }
 
+func (a *API) PatchURL(URL string, Value map[string]string) ([]byte, string, error) {
+
+}
+
 func (a *API) OAuth(ClientID string) *oauth.OAuth {
-	return &oauth.OAuth{
-		Token: &oauth.OAuthToken{
-			ClientID: ClientID,
-		},
-		API: a,
+	if a.o == nil {
+		//Cache it for the first time
+		a.o = &oauth.OAuth{
+			Token: &oauth.OAuthToken{
+				ClientID: ClientID,
+			},
+			API: a,
+		}
 	}
+	return a.o
 }
 
 func (a *API) User() *user.User {
-	return &user.User{
-		API: a,
+	if a.u == nil {
+		//Cache it for the first time
+		a.u = &user.User{
+			API: a,
+		}
 	}
+	return a.u
 }

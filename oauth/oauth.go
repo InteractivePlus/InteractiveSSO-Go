@@ -1,8 +1,6 @@
 package oauth
 
 import (
-	"net/url"
-
 	"github.com/InteractivePlus/InteractiveSSO-Go/api"
 	"github.com/InteractivePlus/InteractiveSSO-Go/common"
 	"github.com/InteractivePlus/InteractiveSSO-Go/user"
@@ -56,16 +54,16 @@ func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string)
 		return nil, nil, common.ParamsError
 	}
 
-	payload := url.Values{}
-	payload.Add("code", o.AuthCode)
-	payload.Add("client_id", o.Token.ClientID)
+	var payload = map[string]string{}
+	payload["code"] = o.AuthCode
+	payload["client_id"] = o.Token.ClientID
 
 	if !isPKCE {
-		payload.Add("client_secret", clientSecret)
+		payload["client_secret"] = clientSecret
 	} else {
 		//PKCE Mode	Ignore ClientSecret
 		codeVerifier := opts[0]
-		payload.Add("code_verifier", codeVerifier)
+		payload["code_verifier"] = codeVerifier
 	}
 
 	res, status, err := o.API.PostURL("/oauth_token", payload)
