@@ -1,7 +1,9 @@
 package oauth
 
 import (
-	"github.com/InteractivePlus/InteractiveSSO-Go/api"
+	"fmt"
+	"strconv"
+
 	"github.com/InteractivePlus/InteractiveSSO-Go/common"
 	"github.com/InteractivePlus/InteractiveSSO-Go/user"
 )
@@ -26,9 +28,13 @@ type OAuthScope struct {
 }
 
 type OAuthUserInfo struct {
-	MaskID      string                  `json:"mask_id"`
-	DisplayName string                  `json:"display_name"`
-	Settings    *user.UserSettingEntity `json:"settings"`
+	MaskID      string                 `json:"mask_id"`
+	DisplayName string                 `json:"display_name"`
+	Settings    user.UserSettingEntity `json:"settings"`
+}
+
+type SENT_METHOD struct {
+	IotaNum int `json:"SENT_METHOD"`
 }
 type OAuth struct {
 	API      *api.API
@@ -38,15 +44,10 @@ type OAuth struct {
 	AuthCode string
 }
 
-var (
-	HTTP200OK      = "200 OK"
-	HTTP201CREATED = "201 CREATED"
-)
-
 //Optional Params: code_challenge code_challenge_type	state
-func (o *OAuth) GetAuthCode(UID, access_token, mask_id, client_id, scope, redirect_uri string, opts ...string) (string, error) {
-
-}
+//func (o *OAuth) GetAuthCode(UID, access_token, mask_id, client_id, scope, redirect_uri string, opts ...string) (string, error) {
+//
+//}
 
 //Optional Params: client_secret code_verifier
 func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string) (*OAuthToken, *common.JSONError, error) {
@@ -71,7 +72,7 @@ func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string)
 		return nil, nil, err
 	}
 
-	if status != HTTP201CREATED {
+	if status != common.HTTP201CREATED {
 		return nil, nil, common.AuthError
 	}
 	var ret OAuthToken
@@ -102,7 +103,7 @@ func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *common.JSONErro
 	if err != nil {
 		return nil, nil, err
 	}
-	if status != HTTP200OK {
+	if status != common.HTTP200OK {
 		return nil, nil, common.AuthError
 	}
 
@@ -135,7 +136,7 @@ func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *common.JSONErr
 		return nil, nil, err
 	}
 
-	if status != HTTP200OK {
+	if status != common.HTTP200OK {
 		return nil, nil, err
 	}
 
@@ -149,4 +150,62 @@ func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *common.JSONErr
 
 }
 
-func (o *OAuth) GetUserInfo()
+func (o *OAuth) GetUserInfo() (*OAuthUserInfo, *common.JSONError, error) {
+	if o.Token == nil {
+		return nil, nil, common.ParamsError
+	}
+	//参数过少不建议调用GetURLWithParams，因为会有额外开销
+	res, status, err := o.API.GetURL(fmt.Sprintf("/oauth_ability/user_info?access_token=%s", o.Token.AccessToken))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if status != common.HTTP200OK {
+		return nil, nil, err
+	}
+
+	var ret OAuthUserInfo
+
+	if err := common.ProcessResult(res, &ret); err != nil {
+		return nil, err, nil
+	}
+
+	return &ret, nil, nil
+
+}
+
+func (o *OAuth) GetNotifications(Title, Content string, IsSales bool, Preferred_send_methods int) (int, *common.JSONError, error) {
+	if o.Token == nil {
+		return 0, nil, common.ParamsError
+	}
+
+	var params = map[string]string{}
+	params["access_token"] = o.Token.AccessToken
+	params["title"] = Title
+	params["content"] = Content
+
+	if IsSales {
+		params["is_sales"] = "1"
+	} else {
+		params["is_sales"] = "0"
+	}
+
+	params["preferred_send_methods"] = strconv.Itoa(Preferred_send_methods)
+
+	res, status, err := o.API.PostURL("/oauth_token/refresh_result", params)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	if status != common.HTTP201CREATED {
+		return 0, nil, err
+	}
+	var ret SENT_METHOD
+
+	if err := common.ProcessResult(res, &ret); err != nil {
+		return 0, err, nil
+	}
+
+	return ret.IotaNum, nil, nil
+
+}
