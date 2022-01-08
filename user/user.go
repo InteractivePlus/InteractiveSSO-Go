@@ -2,7 +2,7 @@ package user
 
 
 import (
-	"github.com/InteractivePlus/InteractiveSSO-Go/utils"
+	"github.com/InteractivePlus/InteractiveSSO-Go/common"
 )
 
 //Be careful! Bool in Go is a type not int

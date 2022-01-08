@@ -3,6 +3,7 @@ package oauth
 import (
 	"net/url"
 
+	"github.com/InteractivePlus/InteractiveSSO-Go/common"
 	"github.com/InteractivePlus/InteractiveSSO-Go/user"
 )
 
@@ -49,9 +50,9 @@ func (o *OAuth) GetAuthCode(UID, access_token, mask_id, client_id, scope, redire
 }
 
 //Optional Params: client_secret code_verifier
-func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string) (*OAuthToken, *interactivesso.JSONError, error) {
+func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string) (*OAuthToken, *common.JSONError, error) {
 	if o.AuthCode == "" || o.Token.ClientID == "" {
-		return nil, nil, interactivesso.ParamsError
+		return nil, nil, common.ParamsError
 	}
 
 	payload := &url.Values{}
@@ -72,10 +73,10 @@ func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string)
 	}
 
 	if status != HTTP201CREATED {
-		return nil, nil, interactivesso.AuthError
+		return nil, nil, common.AuthError
 	}
 	var ret OAuthToken
-	if err := interactivesso.ProcessResult(res, &ret); err != nil {
+	if err := common.ProcessResult(res, &ret); err != nil {
 		return nil, err, nil
 	}
 
@@ -85,9 +86,9 @@ func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string)
 }
 
 //Optional Params: client_secret mask_id
-func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *interactivesso.JSONError, error) {
+func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *common.JSONError, error) {
 	if o.Token == nil || o.Token.ClientID == "" {
-		return nil, nil, interactivesso.ParamsError
+		return nil, nil, common.ParamsError
 	}
 	var params = map[string]string{}
 	params["access_token"] = o.Token.AccessToken
@@ -103,12 +104,12 @@ func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *interactivesso.
 		return nil, nil, err
 	}
 	if status != HTTP200OK {
-		return nil, nil, interactivesso.AuthError
+		return nil, nil, common.AuthError
 	}
 
 	var ret OAuthToken
 
-	if err := interactivesso.ProcessResult(res, &ret); err != nil {
+	if err := common.ProcessResult(res, &ret); err != nil {
 		return nil, err, nil
 	}
 
@@ -116,9 +117,9 @@ func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *interactivesso.
 }
 
 //Optional Params: client_secret
-func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *interactivesso.JSONError, error) {
+func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *common.JSONError, error) {
 	if o.Token == nil || o.Token.ClientID == "" {
-		return "", interactivesso.ParamsError
+		return "", common.ParamsError
 	}
 	var params = map[string]string{}
 	params["client_id"] = o.Token.ClientID
@@ -141,7 +142,7 @@ func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *interactivesso
 
 	var ret OAuthToken
 
-	if err := interactivesso.ProcessResult(res, &ret); err != nil {
+	if err := common.ProcessResult(res, &ret); err != nil {
 		return nil, err, nil
 	}
 
