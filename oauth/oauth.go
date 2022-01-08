@@ -3,6 +3,7 @@ package oauth
 import (
 	"net/url"
 
+	"github.com/InteractivePlus/InteractiveSSO-Go/api"
 	"github.com/InteractivePlus/InteractiveSSO-Go/common"
 	"github.com/InteractivePlus/InteractiveSSO-Go/user"
 )
@@ -32,7 +33,7 @@ type OAuthUserInfo struct {
 	Settings    *user.UserSettingEntity `json:"settings"`
 }
 type OAuth struct {
-	api      *interactivesso.API
+	api      *api.API
 	Token    *OAuthToken
 	Scope    *OAuthScope
 	UserInfo *OAuthUserInfo

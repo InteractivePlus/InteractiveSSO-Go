@@ -1,4 +1,4 @@
-package interac
+package api
 
 import (
 	"bytes"
@@ -24,25 +24,6 @@ type API struct {
 	HttpClient *http.Client
 	Timeout    time.Duration
 	APIServer  string
-}
-
-func NewAPI(ctx context.Context, customHttpClient *http.Client) *API {
-	_api := &API{}
-	if customHttpClient == nil {
-		_api.HttpClient = http.DefaultClient
-	} else {
-		_api.HttpClient = customHttpClient
-	}
-
-	if ctx == nil {
-		_api.ctx = context.Background()
-	} else {
-		_api.ctx = ctx
-	}
-
-	_api.Timeout = 30 * time.Second
-	_api.APIServer = APIServer
-	return _api
 }
 
 //Usage
