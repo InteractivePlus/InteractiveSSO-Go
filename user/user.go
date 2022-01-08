@@ -24,7 +24,7 @@ type MaskID struct {
 	Settings	*UserSettingEntity	`json:"settings"`
 }
 type User struct {
-	api           *interactivesso.API
+	API           *interactivesso.API
 	SettingEntity *UserSettingEntity
 	Maskid		  *MaskID
 }

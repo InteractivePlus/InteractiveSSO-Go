@@ -20,7 +20,7 @@ const (
 )
 
 type API struct {
-	ctx        context.Context
+	Ctx        context.Context
 	HttpClient *http.Client
 	Timeout    time.Duration
 	APIServer  string
@@ -51,7 +51,7 @@ func (a *API) GetURL(URL string) ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	ctx, cancel := context.WithTimeout(a.ctx, a.Timeout)
+	ctx, cancel := context.WithTimeout(a.Ctx, a.Timeout)
 	defer cancel()
 	res, err := a.HttpClient.Do(req.WithContext(ctx))
 	if err != nil {
@@ -67,7 +67,7 @@ func (a *API) GetURLWithParams(URL string, params map[string]string) ([]byte, st
 	if err != nil {
 		return nil, "", err
 	}
-	ctx, cancel := context.WithTimeout(a.ctx, a.Timeout)
+	ctx, cancel := context.WithTimeout(a.Ctx, a.Timeout)
 	defer cancel()
 	res, err := a.HttpClient.Do(req.WithContext(ctx))
 	if err != nil {
@@ -88,7 +88,7 @@ func (a *API) PostURL(URL string, Value url.Values) ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	ctx, cancel := context.WithTimeout(a.ctx, a.Timeout)
+	ctx, cancel := context.WithTimeout(a.Ctx, a.Timeout)
 	defer cancel()
 	res, err := a.HttpClient.Do(req.WithContext(ctx))
 	if err != nil {
@@ -104,12 +104,12 @@ func (a *API) OAuth(ClientID string) *oauth.OAuth {
 		Token: &oauth.OAuthToken{
 			ClientID: ClientID,
 		},
-		api: a,
+		API: a,
 	}
 }
 
 func (a *API) User() *user.User {
 	return &user.User{
-		api: a,
+		API: a,
 	}
 }

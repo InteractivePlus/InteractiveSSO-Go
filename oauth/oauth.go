@@ -33,7 +33,7 @@ type OAuthUserInfo struct {
 	Settings    *user.UserSettingEntity `json:"settings"`
 }
 type OAuth struct {
-	api      *api.API
+	API      *api.API
 	Token    *OAuthToken
 	Scope    *OAuthScope
 	UserInfo *OAuthUserInfo
@@ -56,7 +56,7 @@ func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string)
 		return nil, nil, common.ParamsError
 	}
 
-	payload := &url.Values{}
+	payload := url.Values{}
 	payload.Add("code", o.AuthCode)
 	payload.Add("client_id", o.Token.ClientID)
 
@@ -68,7 +68,7 @@ func (o *OAuth) GetAccessToken(isPKCE bool, clientSecret string, opts ...string)
 		payload.Add("code_verifier", codeVerifier)
 	}
 
-	res, status, err := o.api.PostURL("/oauth_token", payload)
+	res, status, err := o.API.PostURL("/oauth_token", payload)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,7 +100,7 @@ func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *common.JSONErro
 		params["client_secret"] = opts[0]
 		params["mask_id"] = opts[1]
 	}
-	res, status, err := o.api.GetURLWithParams("/oauth_token/verified_status", params)
+	res, status, err := o.API.GetURLWithParams("/oauth_token/verified_status", params)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -120,7 +120,7 @@ func (o *OAuth) VerifyAccessToken(opts ...string) (*OAuthToken, *common.JSONErro
 //Optional Params: client_secret
 func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *common.JSONError, error) {
 	if o.Token == nil || o.Token.ClientID == "" {
-		return "", common.ParamsError
+		return nil, nil, common.ParamsError
 	}
 	var params = map[string]string{}
 	params["client_id"] = o.Token.ClientID
@@ -132,13 +132,13 @@ func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *common.JSONErr
 		params["client_secret"] = opts[0]
 	}
 
-	res, status, err := o.api.GetURLWithParams("/oauth_token/refresh_result", params)
+	res, status, err := o.API.GetURLWithParams("/oauth_token/refresh_result", params)
 	if err != nil {
-		return "", err
+		return nil, nil, err
 	}
 
 	if status != HTTP200OK {
-		return "", err
+		return nil, nil, err
 	}
 
 	var ret OAuthToken
@@ -147,7 +147,7 @@ func (o *OAuth) RefreshAccessToken(opts ...string) (*OAuthToken, *common.JSONErr
 		return nil, err, nil
 	}
 
-	return res, nil
+	return &ret, nil, nil
 
 }
 
