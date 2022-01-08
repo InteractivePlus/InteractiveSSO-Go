@@ -228,7 +228,10 @@ func (a *API) GetURLWithParams(URL string, params map[string]string) ([]byte, st
 //access the url using POST method
 // Return Value : Response Body, HTTP Code, Error
 func (a *API) PostURL(URL string, Value url.Values) ([]byte, string, error) {
-	req, err := http.NewRequest("POST", a.GetFormatURL(URL), bytes.NewBufferString(Value.Encode()))
+	payload, _ := json.Marshal(Value)
+	req, err := http.NewRequest("POST", a.GetFormatURL(URL), bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+
 	if err != nil {
 		return nil, "", err
 	}
