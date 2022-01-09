@@ -9,11 +9,12 @@ type SettingBoolean struct {
 }
 
 var (
-	ParamsError         = errors.New("Params Error")
-	AuthError           = errors.New("OAuth Fail")
-	IsDebug        bool = false
-	HTTP200OK           = "200 OK"
-	HTTP201CREATED      = "201 CREATED"
+	ParamsError           = errors.New("Params Error")
+	AuthError             = errors.New("OAuth Fail")
+	IsDebug          bool = false
+	HTTP200OK             = "200 OK"
+	HTTP201CREATED        = "201 CREATED"
+	HTTP204NOCONTENT      = "204 NO CONTENT"
 )
 
 const (
@@ -61,6 +62,10 @@ type GeneralResult struct {
 	Credential          string          `json:"credential,omitempty"`
 	UserDefinedRootData string          `json:"user-defined-root-data,omitempty"`
 	Data                json.RawMessage `json:"data,omitempty"`
+}
+
+type SENT_METHOD struct {
+	IotaNum int `json:"SENT_METHOD"`
 }
 
 //cStruct MUST BE A Pointer!!!!

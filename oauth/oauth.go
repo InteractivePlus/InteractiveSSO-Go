@@ -33,9 +33,6 @@ type OAuthUserInfo struct {
 	Settings    user.UserSettingEntity `json:"settings"`
 }
 
-type SENT_METHOD struct {
-	IotaNum int `json:"SENT_METHOD"`
-}
 type OAuth struct {
 	API      *api.API
 	Token    *OAuthToken
@@ -200,7 +197,7 @@ func (o *OAuth) GetNotifications(Title, Content string, IsSales bool, Preferred_
 	if status != common.HTTP201CREATED {
 		return 0, nil, err
 	}
-	var ret SENT_METHOD
+	var ret common.SENT_METHOD
 
 	if err := common.ProcessResult(res, &ret); err != nil {
 		return 0, err, nil

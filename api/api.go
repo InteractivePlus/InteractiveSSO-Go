@@ -81,7 +81,7 @@ func (a *API) GetURLWithParams(URL string, params map[string]string) ([]byte, st
 
 //access the url using POST method
 // Return Value : Response Body, HTTP Code, Error
-func (a *API) PostURL(URL string, Value map[string]string) ([]byte, string, error) {
+func (a *API) PostURL(URL string, Value interface{}) ([]byte, string, error) {
 	payload, _ := json.Marshal(Value)
 	req, err := http.NewRequest("POST", a.GetFormatURL(URL), bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
@@ -100,8 +100,44 @@ func (a *API) PostURL(URL string, Value map[string]string) ([]byte, string, erro
 	return body, res.Status, nil
 }
 
-func (a *API) PatchURL(URL string, Value map[string]string) ([]byte, string, error) {
+func (a *API) PatchURL(URL string, Value interface{}) ([]byte, string, error) {
+	jsonBlob, _ := json.Marshal(Value)
+	//Patch Params MUST BE an array
+	payload := []byte(`[`)
+	end := []byte(`]`)
+	payload = append(payload, jsonBlob...)
+	payload = append(payload, end...)
+	req, err := http.NewRequest("PATCH", a.GetFormatURL(URL), bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
 
+	if err != nil {
+		return nil, "", err
+	}
+	ctx, cancel := context.WithTimeout(a.Ctx, a.Timeout)
+	defer cancel()
+	res, err := a.HttpClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return nil, "", err
+	}
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	return body, res.Status, nil
+}
+
+func (a *API) DeleteURL(URL string) ([]byte, string, error) {
+	req, err := http.NewRequest("DELETE", a.GetFormatURL(URL), nil)
+	if err != nil {
+		return nil, "", err
+	}
+	ctx, cancel := context.WithTimeout(a.Ctx, a.Timeout)
+	defer cancel()
+	res, err := a.HttpClient.Do(req.WithContext(ctx))
+	if err != nil {
+		return nil, "", err
+	}
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+	return body, res.Status, nil
 }
 
 func (a *API) OAuth(ClientID string) *oauth.OAuth {
